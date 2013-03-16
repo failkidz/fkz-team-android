@@ -5,7 +5,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,8 +22,8 @@ public class JSON {
         //http post
         try{
             HttpClient httpclient = new DefaultHttpClient();
-            HttpGet httppost = new HttpGet(url);
-            HttpResponse response = httpclient.execute(httppost);
+            HttpGet httpget = new HttpGet(url);
+            HttpResponse response = httpclient.execute(httpget);
             HttpEntity entity = response.getEntity();
             is = entity.getContent();
 
@@ -36,9 +35,9 @@ public class JSON {
         try{
             BufferedReader reader = new BufferedReader(new InputStreamReader(is,"UTF-8"));
             StringBuilder sb = new StringBuilder();
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
+                sb.append(line).append("\n");
             }
             is.close();
             result=sb.toString();
@@ -47,10 +46,9 @@ public class JSON {
         }
 
         try{
-
             jArray = new JSONObject(result);
         }catch(JSONException e){
-            Log.e("log_tag", "Error parsing data "+e.toString());
+            Log.e("log_tag", "Error parsing data "+e.toString()+". Database empty?");
         }
 
         return jArray;

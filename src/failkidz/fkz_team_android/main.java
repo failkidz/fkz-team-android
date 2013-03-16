@@ -21,42 +21,48 @@ public class main extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        Button button = (Button) findViewById(R.id.button);
+        button.setOnClickListener(new ButtonListener());
+        updateList();
+
+    }
+
+    public void updateList(){
         ArrayList<HashMap<String, String>> mylist = new ArrayList<HashMap<String, String>>();
 
-        JSONObject json = JSON.getJSONfromURL("http://130.229.141.250:8080/fkz-team/ScoreboardREST");
-//        JSONObject json = JSON.getJSONfromURL("https://api.github.com/users/Wneh");
+        JSONObject json = JSON.getJSONfromURL("http://213.89.179.118:8080/fkz-team/ScoreboardREST");
+        if(json != null){
+            try{
 
-        try{
+                JSONArray scoreboard = json.getJSONArray("scoreboard");
 
-            JSONArray scoreboard = json.getJSONArray("scoreboard");
-
-            for(int i=0;i<scoreboard.length();i++){
-                HashMap<String, String> map = new HashMap<String, String>();
-                JSONObject e = scoreboard.getJSONObject(i);
-                map.put("id", String.valueOf(i));
-                map.put("teamName", e.getString("teamname"));
-                map.put("points", e.getString("points"));
-                mylist.add(map);
+                for(int i=0;i<scoreboard.length();i++){
+                    HashMap<String, String> map = new HashMap<String, String>();
+                    JSONObject e = scoreboard.getJSONObject(i);
+//                    map.put("id", String.valueOf(i));
+                    map.put("teamName", e.getString("teamname"));
+                    map.put("points", e.getString("points"));
+                    mylist.add(map);
+                }
+            }catch(JSONException e)        {
+                Log.e("log_tag", "Error parsing JSON data " + e.toString());
             }
-        }catch(JSONException e)        {
-            Log.e("log_tag", "Error parsing JSON data " + e.toString());
+
+
+            ListAdapter adapter = new SimpleAdapter(this, mylist , R.layout.listelement,
+                    new String[] { "teamName", "points" },
+                    new int[] { R.id.item_title, R.id.item_subtitle });
+
+
+            setListAdapter(adapter);
         }
+    }
 
-        ListAdapter adapter = new SimpleAdapter(this, mylist , R.layout.listelement,
-                new String[] { "teamName", "points" },
-                new int[] { R.id.item_title, R.id.item_subtitle });
+    public class ButtonListener implements View.OnClickListener {
 
-        setListAdapter(adapter);
-
-        final ListView lv = getListView();
-        lv.setTextFilterEnabled(true);
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                @SuppressWarnings("unchecked")
-                HashMap<String, String> o = (HashMap<String, String>) lv.getItemAtPosition(position);
-                Toast.makeText(main.this, "ID '" + o.get("id") + "' was clicked.", Toast.LENGTH_SHORT).show();
-
-            }
-        });
+        public void onClick(View view) {
+            updateList();
+        }
     }
 }
+
